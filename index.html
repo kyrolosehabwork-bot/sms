@@ -5805,7 +5805,7 @@ function renderRevenueSparkline(invoices) {
 
 function renderRecentInvoices(invoices) {
   const container = document.getElementById('dash-recent-invoices');
-  const recent = invoices.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  const recent = [...invoices].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
   
   if (recent.length === 0) { container.innerHTML = '<p class="empty-state" style="padding:12px">لا توجد فواتير</p>'; return; }
   
@@ -7919,6 +7919,7 @@ async function bulkDeleteInvoices(type) {
     } catch(e) {}
   }
   await updateBalances();
+  if (typeof loadDashboard === 'function') loadDashboard();
 }
 
 
@@ -8030,6 +8031,9 @@ async function deleteInvoice(id) {
   if (inv?.items) await reverseStockChanges(inv);
   await dbDelete('invoices', id);
   await updateBalances();
+  
+  // Refresh dashboard so recent invoices list is up to date
+  if (typeof loadDashboard === 'function') loadDashboard();
 }
 
 // ============ PAYMENT ============
